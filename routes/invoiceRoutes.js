@@ -83,8 +83,8 @@ router.post("/:id/add-service", async (req, res) => {
     // Calculate tax amount
     const taxAmount = (discountedPrice * taxRate.taxRate) / 100;
 
-    // Calculate total amount and round it to a whole number
-    const totalAmount = Math.round(discountedPrice + taxAmount);
+    // Calculate final price
+    const finalPrice = Math.round(discountedPrice + taxAmount);
 
     const service = {
       serviceType,
@@ -93,6 +93,7 @@ router.post("/:id/add-service", async (req, res) => {
       tax,
       discountedPrice,
       taxAmount,
+      finalPrice, // Add final price to the service object
     };
 
     const updatedInvoice = await Invoice.findByIdAndUpdate(
@@ -100,7 +101,7 @@ router.post("/:id/add-service", async (req, res) => {
       {
         $push: { services: service },
         $inc: {
-          totalAmount: totalAmount,
+          totalAmount: finalPrice, // Add final price to the total amount
         },
       },
       { new: true }
@@ -117,6 +118,7 @@ router.post("/:id/add-service", async (req, res) => {
 });
 
 // Remove Service from Invoice
+
 router.delete("/:id/remove-service/:serviceId", async (req, res) => {
   try {
     const invoiceId = req.params.id;
@@ -140,20 +142,13 @@ router.delete("/:id/remove-service/:serviceId", async (req, res) => {
     }
 
     // Calculate the totalAmount to be deducted
-    const totalAmountToDeduct =
-      Math.round((service.discountedPrice + service.taxAmount) * 100) / 100; // round to 2 decimal places
+    const totalAmountToDeduct = service.finalPrice;
 
     // Remove the service from the services array and deduct the totalAmount
     invoice.services = invoice.services.filter(
       (service) => service._id.toString() !== serviceId
     );
-
-    if (!isNaN(invoice.totalAmount)) {
-      invoice.totalAmount =
-        Math.round((invoice.totalAmount - totalAmountToDeduct) * 100) / 100; // round to 2 decimal places
-    } else {
-      invoice.totalAmount = 0;
-    }
+    invoice.totalAmount -= totalAmountToDeduct;
 
     await invoice.save();
 
