@@ -22,6 +22,7 @@ const invoiceSchema = new mongoose.Schema({
   dueDate: {
     type: Date,
     required: true,
+    default: Date.now,
   },
   referenceNumber: {
     type: String,

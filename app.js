@@ -22,7 +22,7 @@ async function connectToMongoDB() {
 connectToMongoDB();
 
 // Use invoice routes
-app.use("/invoices", invoiceRoutes);
+app.use("/invoice", invoiceRoutes);
 app.use("/tax", taxRoutes);
 
 // Define a simple route
