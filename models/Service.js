@@ -22,6 +22,19 @@ export const serviceSchema = new mongoose.Schema({
     ref: "Tax",
     required: true,
   },
+  discountedPrice: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  taxAmount: {
+    type: Number,
+    default: 0,
+  },
+  discountAmount: {
+    type: Number,
+    default: 0,
+  },
   finalPrice: {
     type: Number,
     required: true,

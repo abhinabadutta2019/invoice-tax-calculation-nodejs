@@ -83,6 +83,9 @@ router.post("/:id/add-service", async (req, res) => {
     // Calculate tax amount
     const taxAmount = (discountedPrice * taxRate.taxRate) / 100;
 
+    // Calculate discount amount
+    const discountAmount = sellingPrice - discountedPrice;
+
     // Calculate final price
     const finalPrice = Math.round(discountedPrice + taxAmount);
 
@@ -93,6 +96,7 @@ router.post("/:id/add-service", async (req, res) => {
       tax,
       discountedPrice,
       taxAmount,
+      discountAmount,
       finalPrice, // Add final price to the service object
     };
 
