@@ -9,7 +9,10 @@ const router = express.Router();
 async function getInvoice(req, res, next) {
   let invoice;
   try {
-    invoice = await Invoice.findById(req.params.id);
+    invoice = await Invoice.findById(req.params.id).populate(
+      "services.tax",
+      "taxName taxRate"
+    );
     if (invoice == null) {
       return res.status(404).json({ message: "Invoice not found" });
     }
@@ -106,6 +109,8 @@ router.post("/:id/add-service", async (req, res) => {
         $push: { services: service },
         $inc: {
           totalAmount: finalPrice, // Add final price to the total amount
+          totalDiscountAmount: discountAmount, // Add discount amount to totalDiscountAmount
+          totalTaxAmount: taxAmount, // Add tax amount to totalTaxAmount
         },
       },
       { new: true }
@@ -144,6 +149,10 @@ router.delete("/:id/remove-service/:serviceId", async (req, res) => {
         .status(404)
         .json({ message: "Service not found in the invoice" });
     }
+
+    // Deduct the taxAmount and discountAmount from totalTaxAmount and totalDiscountAmount respectively
+    invoice.totalTaxAmount -= service.taxAmount;
+    invoice.totalDiscountAmount -= service.discountAmount;
 
     // Calculate the totalAmount to be deducted
     const totalAmountToDeduct = service.finalPrice;

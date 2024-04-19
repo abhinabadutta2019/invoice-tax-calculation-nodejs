@@ -38,6 +38,14 @@ const invoiceSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  totalDiscountAmount: {
+    type: Number,
+    default: 0,
+  },
+  totalTaxAmount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Invoice = mongoose.model("Invoice", invoiceSchema);
