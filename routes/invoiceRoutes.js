@@ -164,9 +164,23 @@ router.delete("/:id/remove-service/:serviceId", async (req, res) => {
 // Update Invoice
 router.put("/:id", getInvoice, async (req, res) => {
   try {
+    const {
+      customerName,
+      invoiceDate,
+      dueDate,
+      referenceNumber,
+      paymentMethod,
+    } = req.body;
+
     const updatedInvoice = await Invoice.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      {
+        customerName,
+        invoiceDate,
+        dueDate,
+        referenceNumber,
+        paymentMethod,
+      },
       {
         new: true,
       }

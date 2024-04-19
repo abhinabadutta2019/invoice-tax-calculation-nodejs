@@ -3,10 +3,12 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import invoiceRoutes from "./routes/invoiceRoutes.js";
 import taxRoutes from "./routes/taxRoutes.js";
+import cors from "cors"; // Import cors
 
 const app = express();
 app.use(express.json());
 dotenv.config();
+app.use(cors());
 
 let uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.te788iv.mongodb.net/invoice-tax-apr-24?retryWrites=true&w=majority`;
 
