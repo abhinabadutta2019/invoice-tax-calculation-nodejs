@@ -8,7 +8,13 @@ import cors from "cors"; // Import cors
 const app = express();
 app.use(express.json());
 dotenv.config();
-app.use(cors());
+
+// Allow requests from specific origin
+const corsOptions = {
+  origin: "https://invoicely-app.onrender.com",
+};
+
+app.use(cors(corsOptions));
 
 let uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.te788iv.mongodb.net/invoice-tax-apr-24?retryWrites=true&w=majority`;
 
