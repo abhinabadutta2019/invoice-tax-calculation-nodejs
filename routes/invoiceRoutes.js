@@ -39,47 +39,58 @@ router.get("/download/:id", getInvoice, async (req, res) => {
     doc.moveDown();
     doc.fontSize(12).text(`Invoice Number: ${invoice.invoiceNumber}`);
     doc.fontSize(12).text(`Customer Name: ${invoice.customerName}`);
-    doc.fontSize(12).text(`Invoice Date: ${invoice.invoiceDate}`);
-    doc.fontSize(12).text(`Due Date: ${invoice.dueDate}`);
+    doc
+      .fontSize(12)
+      .text(
+        `Invoice Date: ${new Date(invoice.invoiceDate).toLocaleDateString(
+          "en-US"
+        )}`
+      );
+    doc
+      .fontSize(12)
+      .text(
+        `Due Date: ${new Date(invoice.dueDate).toLocaleDateString("en-US")}`
+      );
 
-    // Services table
+    // Services
     doc.moveDown();
     doc.fontSize(14).text("Services:", { underline: true });
 
-    // Table headers
-    doc.fontSize(12).text("Service Type", 100, doc.y, { width: 200 });
-    doc.text("Final Price", 300, doc.y);
-
-    // Table rows
-    let yPos = doc.y;
+    // Displaying service details
     invoice.services.forEach((service) => {
-      yPos = yPos + 20;
-      doc.fontSize(12).text(service.serviceType, 100, yPos, { width: 200 });
-      doc.text(`$${service.finalPrice.toFixed(2)}`, 300, yPos);
+      doc.moveDown();
+      doc
+        .fontSize(12)
+        .text(
+          `Service: ${
+            service.serviceType
+          }, Final Price: $${service.finalPrice.toFixed(
+            2
+          )}, Tax Amount: $${service.taxAmount.toFixed(
+            2
+          )}, Discount Amount: $${service.discountAmount.toFixed(2)}`
+        );
     });
 
     // Total amounts
-    yPos += 40;
     doc.moveDown();
     doc
-      .fontSize(16)
+      .fontSize(10)
       .text(
         `Total Discount Amount: $${invoice.totalDiscountAmount.toFixed(2)}`,
         { align: "right" }
       );
     doc.moveDown();
     doc
-      .fontSize(16)
+      .fontSize(10)
       .text(`Total Tax Amount: $${invoice.totalTaxAmount.toFixed(2)}`, {
         align: "right",
       });
     doc.moveDown();
-    doc
-      .fontSize(16)
-      .text(`Total Amount: $${invoice.totalAmount.toFixed(2)}`, {
-        align: "right",
-        underline: true,
-      });
+    doc.fontSize(16).text(`Total Amount: $${invoice.totalAmount.toFixed(2)}`, {
+      align: "right",
+      underline: true,
+    });
 
     doc.end();
   } catch (error) {
