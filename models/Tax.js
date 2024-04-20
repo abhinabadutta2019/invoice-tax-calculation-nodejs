@@ -13,8 +13,11 @@ const taxSchema = new mongoose.Schema({
     min: 0,
     max: 100,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// module.exports = mongoose.model("Tax", taxSchema);
 const Tax = mongoose.model("Tax", taxSchema);
 export default Tax;

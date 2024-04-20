@@ -13,6 +13,23 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+//
+// Toggle disabled field of a Tax
+router.put("/:id/toggle", async (req, res) => {
+  try {
+    const tax = await Tax.findById(req.params.id);
+    if (!tax) {
+      return res.status(404).json({ message: "Tax not found" });
+    }
+
+    tax.disabled = !tax.disabled;
+    await tax.save();
+
+    res.json(tax);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // Read All Taxes
 router.get("/", async (req, res) => {
