@@ -1,7 +1,8 @@
-//routes/invoiceRoutes.js
 import express from "express";
 import Invoice from "../models/Invoice.js";
 import Tax from "../models/Tax.js";
+import PDFDocument from "pdfkit";
+import fs from "fs";
 
 const router = express.Router();
 
@@ -22,6 +23,70 @@ async function getInvoice(req, res, next) {
   res.invoice = invoice;
   next();
 }
+
+router.get("/download/:id", getInvoice, async (req, res) => {
+  try {
+    const invoice = res.invoice; // Get the invoice from the response object
+    const doc = new PDFDocument();
+    const filename = `invoice_${invoice.invoiceNumber}.pdf`;
+
+    res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+    res.setHeader("Content-Type", "application/pdf");
+
+    doc.pipe(res);
+
+    doc.fontSize(20).text("Invoice", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(12).text(`Invoice Number: ${invoice.invoiceNumber}`);
+    doc.fontSize(12).text(`Customer Name: ${invoice.customerName}`);
+    doc.fontSize(12).text(`Invoice Date: ${invoice.invoiceDate}`);
+    doc.fontSize(12).text(`Due Date: ${invoice.dueDate}`);
+
+    // Services table
+    doc.moveDown();
+    doc.fontSize(14).text("Services:", { underline: true });
+
+    // Table headers
+    doc.fontSize(12).text("Service Type", 100, doc.y, { width: 200 });
+    doc.text("Final Price", 300, doc.y);
+
+    // Table rows
+    let yPos = doc.y;
+    invoice.services.forEach((service) => {
+      yPos = yPos + 20;
+      doc.fontSize(12).text(service.serviceType, 100, yPos, { width: 200 });
+      doc.text(`$${service.finalPrice.toFixed(2)}`, 300, yPos);
+    });
+
+    // Total amounts
+    yPos += 40;
+    doc.moveDown();
+    doc
+      .fontSize(16)
+      .text(
+        `Total Discount Amount: $${invoice.totalDiscountAmount.toFixed(2)}`,
+        { align: "right" }
+      );
+    doc.moveDown();
+    doc
+      .fontSize(16)
+      .text(`Total Tax Amount: $${invoice.totalTaxAmount.toFixed(2)}`, {
+        align: "right",
+      });
+    doc.moveDown();
+    doc
+      .fontSize(16)
+      .text(`Total Amount: $${invoice.totalAmount.toFixed(2)}`, {
+        align: "right",
+        underline: true,
+      });
+
+    doc.end();
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // Create Invoice
 router.post("/", async (req, res) => {
